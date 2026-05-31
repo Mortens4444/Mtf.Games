@@ -18,7 +18,7 @@ public class CircleEater : IMoveable
     {
         Circle = new CirclePrimitive()
         {
-            Shape = new CircleF(new PointF(x, y), radius),
+            Circle = new CircleF(new PointF(x, y), radius),
             Fill = true
         };
     }
@@ -27,7 +27,7 @@ public class CircleEater : IMoveable
     {
         Circle = new CirclePrimitive()
         {
-            Shape = new CircleF((byte)random.Next(radius, canvas.ScreenWidth - radius),
+            Circle = new CircleF((byte)random.Next(radius, canvas.ScreenWidth - radius),
                 (byte)random.Next(radius, canvas.ScreenHeight - radius), radius),
             Fill = false
         };
@@ -108,7 +108,7 @@ public class CircleEater : IMoveable
         }
         if (Circle.Center.X + Circle.Radius > canvas.ScreenWidth)
         {
-            x = Convert.ToByte(Circle.Shape.Radius);
+            x = Convert.ToByte(Circle.Circle.Radius);
         }
         var y = (byte)(Circle.Center.Y + moveModifierUp + moveModifierDown);
         if (y - Circle.Radius < 0)
@@ -117,7 +117,7 @@ public class CircleEater : IMoveable
         }
         if (Circle.Center.Y + Circle.Radius > canvas.ScreenHeight)
         {
-            y = Convert.ToByte(Circle.Shape.Radius);
+            y = Convert.ToByte(Circle.Circle.Radius);
         }
         Circle.Center = new PointF(x, y);
     }

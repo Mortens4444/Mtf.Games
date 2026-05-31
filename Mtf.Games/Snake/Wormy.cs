@@ -17,7 +17,7 @@ public class Wormy : Directable
         {
             bodyParts.Add(new CirclePrimitive()
             {
-                Shape = new CircleF(
+                Circle = new CircleF(
                     (byte)(20 + ((int)Direction * i * MovingDifferenceProvider.PixelsToMove)),
                     (byte)canvas.VerticalCenter,
                     Constants.WormBodyRadius),
@@ -41,7 +41,7 @@ public class Wormy : Directable
         var movingModifier = movingDifferenceProvider.GetMovingDifference(Direction);
         bodyParts.Add(new CirclePrimitive()
         {
-            Shape = new CircleF(head.Center.X + movingModifier.DeltaX, head.Center.Y + movingModifier.DeltaY, Constants.WormBodyRadius),
+            Circle = new CircleF(head.Center.X + movingModifier.DeltaX, head.Center.Y + movingModifier.DeltaY, Constants.WormBodyRadius),
             Fill = false
         });
         var newHead = GetHead();
@@ -73,7 +73,7 @@ public class Wormy : Directable
         {
             bodyParts.Insert(0, new CirclePrimitive
             {
-                Shape = new CircleF(tail.Center.X, tail.Center.Y, Constants.WormBodyRadius),
+                Circle = new CircleF(tail.Center.X, tail.Center.Y, Constants.WormBodyRadius),
                 Fill = false
             });
         }

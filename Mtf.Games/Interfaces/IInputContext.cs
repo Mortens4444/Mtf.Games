@@ -2,7 +2,5 @@
 
 public interface IInputContext
 {
-    void ChangeTopLine(object enable);
-
     public IButtonStates GetButtonStates();
  }

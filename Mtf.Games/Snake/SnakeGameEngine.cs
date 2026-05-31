@@ -1,5 +1,4 @@
-﻿using Mtf.Drawing;
-using Mtf.Drawing.Render;
+﻿using Mtf.Drawing.Render;
 using Mtf.Games.General;
 using Mtf.Games.Interfaces;
 using System.Drawing;
@@ -43,12 +42,7 @@ public class SnakeGameEngine(IGameContext? gameContext) : GameEngineBase(gameCon
                 foodProducer.ProduceFood(gameContext);
                 worm.Grow(nutrition);
             }
-            var text = new TextPrimitive(new PointPrimitive(0, 0), $"Score: {Constants.MaxPoints} / {scoreCounter.Score}")
-            {
-                FontType = FontType.Tiny,
-                //                Text = new TextLayout($"Score: {scoreCounter.Score}", FontType.Tiny, LCDColor.Black),
-            };
-
+            var text = new TextPrimitive(new PointPrimitive(0, 0), $"Score: {Constants.MaxPoints} / {scoreCounter.Score}");
             gameContext.Draw(text, Color.Black);
         }
 

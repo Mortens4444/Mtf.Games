@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <InformationalVersion>$(Version)</InformationalVersion>
@@ -32,12 +32,12 @@
     <PackageId>Mtf.Games</PackageId>
     <Authors>Mortens</Authors>
     <Company>Mortens</Company>
-    <Description>*Mtf.Drawing** is a modern, C#-based 2D geometry and rendering library designed to simplify the mathematical manipulation and GDI+ rendering of shapes. The project strictly separates the geometric definition of shapes (data and logic) from their physical display (rendering), ensuring the code remains clean, testable, and highly maintainable.</Description>
+    <Description>**Mtf.Drawing** is a modern, C#-based 2D geometry and rendering library designed to simplify the mathematical manipulation and GDI+ rendering of shapes. The project strictly separates the geometric definition of shapes (data and logic) from their physical display (rendering), ensuring the code remains clean, testable, and highly maintainable.</Description>
     <PackageReadmeFile>.\ReadMe.md</PackageReadmeFile>
     <PackageLicenseFile>.\LICENSE.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Mortens4444/Mtf.Extensions.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Circle Mortens</PackageTags>
+    <PackageTags>Circles Snake Games Mortens</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All" />
-    <PackageReference Include="Mtf.Drawing" Version="1.0.5" />
+    <PackageReference Include="Mtf.Drawing" Version="1.0.6" />
     <PackageReference Include="System.Drawing.Common" Version="10.0.8" />
   </ItemGroup>
 

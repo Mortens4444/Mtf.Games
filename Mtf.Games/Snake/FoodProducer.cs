@@ -34,7 +34,7 @@ public class FoodProducer
         var y = (byte)random.Next(Constants.FoodRadius, canvas.ScreenHeight - Constants.FoodRadius);
         food = new CirclePrimitive
         {
-            Shape = new CircleF(x, y, Constants.FoodRadius),
+            Circle = new CircleF(x, y, Constants.FoodRadius),
             Fill = true
         };
     }

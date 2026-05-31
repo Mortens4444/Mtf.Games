@@ -25,7 +25,7 @@ public class CirclesGameEngine(IGameContext? gameContext) : GameEngineBase(gameC
 
         var playerZone = new CirclePrimitive
         {
-            Shape = new CircleF(gameContext.HorizontalCenter, gameContext.VerticalCenter, 20),
+            Circle = new CircleF(gameContext.HorizontalCenter, gameContext.VerticalCenter, 20),
             Fill = false
         };
         for (int i = 0; i < NumberOfEnemies; i++)
@@ -63,7 +63,7 @@ public class CirclesGameEngine(IGameContext? gameContext) : GameEngineBase(gameC
                 {
                     enemies.Remove(enemy);
                     gameContext.Draw(player.Circle, Color.Black);
-                    player.Circle.Shape.Inflate((byte)(enemy.Circle.Radius / 4));
+                    player.Circle.Circle.Inflate((byte)(enemy.Circle.Radius / 4));
                     if (enemies.Count == 0)
                     {
                         message = "You won!";

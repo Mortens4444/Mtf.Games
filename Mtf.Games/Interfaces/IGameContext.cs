@@ -4,9 +4,5 @@ public interface IGameContext : ICanvas, IInputContext, IAudioContext, IApplicat
 {
     void Finish();
 
-    void PlayGameOver();
-
-    void PlayYouWon();
-
     void StartGame();
 }
