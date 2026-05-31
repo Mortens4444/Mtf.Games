@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <InformationalVersion>$(Version)</InformationalVersion>
@@ -32,7 +32,7 @@
     <PackageId>Mtf.Games</PackageId>
     <Authors>Mortens</Authors>
     <Company>Mortens</Company>
-    <Description></Description>
+    <Description>*Mtf.Drawing** is a modern, C#-based 2D geometry and rendering library designed to simplify the mathematical manipulation and GDI+ rendering of shapes. The project strictly separates the geometric definition of shapes (data and logic) from their physical display (rendering), ensuring the code remains clean, testable, and highly maintainable.</Description>
     <PackageReadmeFile>.\ReadMe.md</PackageReadmeFile>
     <PackageLicenseFile>.\LICENSE.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Mortens4444/Mtf.Extensions.git</RepositoryUrl>
