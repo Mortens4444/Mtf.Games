@@ -20,5 +20,5 @@ public interface ICanvas
 
     void Draw(IPrimitive primitive, Color color);
 
-    void ShowOnMiddleOfScreen(string v1, FontType fontType, int v2);
+    void ShowOnMiddleOfScreen(string text, FontType fontType, int v2);
 }

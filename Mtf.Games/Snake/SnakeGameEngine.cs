@@ -22,7 +22,7 @@ public class SnakeGameEngine(IGameContext? gameContext) : GameEngineBase(gameCon
         message = GameOver;
     }
 
-    protected override IButtonStates? GameMoment()
+    public override IButtonStates? GameMoment()
     {
         inGame &= worm.MoveForward(gameContext);
         if (inGame)

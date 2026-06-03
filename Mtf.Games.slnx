@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="Mtf.Games/Mtf.Games.csproj" />
+  <Project Path="Snake.Console.Game/Snake.Console.Game.csproj" Id="8e1c031a-bf14-4dc6-9058-d0e0406d115f" />
+  <Project Path="Snake.WinForms.Game/Snake.WinForms.Game.csproj" Id="5847b6eb-12e1-40fe-9cb9-13765d6361fa" />
 </Solution>

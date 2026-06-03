@@ -9,7 +9,9 @@ public abstract class GameEngineBase
     protected bool inGame;
     protected string message = String.Empty;
 
-    protected const string GameOver = "Game over!";
+    public const string GameOver = "Game over!";
+    
+    public bool IsInGame => inGame;
 
     public GameEngineBase(IGameContext? gameContext)
     {
@@ -18,10 +20,10 @@ public abstract class GameEngineBase
     }
 
     protected abstract void StartNewGame();
-    
-    protected abstract IButtonStates? GameMoment();
 
-    public void GameLoop()
+    public abstract IButtonStates? GameMoment();
+
+    public void GameLoop(int time = 30)
     {
         Initialize();
 
@@ -45,7 +47,7 @@ public abstract class GameEngineBase
             }
 
             gameContext.Update();
-            Thread.Sleep(inGame ? 30 : 3000);
+            Thread.Sleep(inGame ? time : 3000);
         }
 
         Finish();

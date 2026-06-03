@@ -40,7 +40,7 @@ public class CirclesGameEngine(IGameContext? gameContext) : GameEngineBase(gameC
         }
     }
 
-    protected override IButtonStates? GameMoment()
+    public override IButtonStates? GameMoment()
     {
         player.Move(gameContext);
         bool drawPlayer = true;
