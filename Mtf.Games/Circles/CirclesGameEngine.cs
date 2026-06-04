@@ -63,7 +63,7 @@ public class CirclesGameEngine(IGameContext? gameContext) : GameEngineBase(gameC
                 {
                     enemies.Remove(enemy);
                     gameContext.Draw(player.Circle, Color.Black);
-                    player.Circle.Circle.Inflate((byte)(enemy.Circle.Radius / 4));
+                    player.Circle.Inflate(enemy.Circle.Radius / 4);
                     if (enemies.Count == 0)
                     {
                         Won();

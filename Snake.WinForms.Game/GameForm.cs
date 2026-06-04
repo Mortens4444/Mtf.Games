@@ -1,4 +1,5 @@
 using Mtf.Drawing;
+using Mtf.Games.Circles;
 using Mtf.Games.General;
 using Mtf.Games.Snake;
 
@@ -6,9 +7,8 @@ namespace Snake.WinForms.Game;
 
 public partial class GameForm : Form
 {
-    private readonly System.Windows.Forms.Timer timer;
     private readonly WinFormsGameContext context;
-    private readonly SnakeGameEngine engine;
+    private readonly GameEngineBase engine;
 
     public GameForm()
     {
@@ -19,7 +19,8 @@ public partial class GameForm : Form
         Text = "Mtf Snake";
 
         context = new WinFormsGameContext(this);
-        engine = new SnakeGameEngine(context);
+        //engine = new SnakeGameEngine(context);
+        engine = new CirclesGameEngine(context);
         engine.OnGameOver += () =>
         {
             context.ShowOnMiddleOfScreen(GameEngineBase.GameOver, FontType.Normal, 0);
