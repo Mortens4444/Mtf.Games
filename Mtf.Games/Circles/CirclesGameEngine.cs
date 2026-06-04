@@ -66,16 +66,14 @@ public class CirclesGameEngine(IGameContext? gameContext) : GameEngineBase(gameC
                     player.Circle.Circle.Inflate((byte)(enemy.Circle.Radius / 4));
                     if (enemies.Count == 0)
                     {
-                        message = "You won!";
-                        inGame = false;
+                        Won();
                     }
                 }
                 else
                 {
-                    message = GameOver;
                     drawPlayer = false;
                     gameContext.Draw(enemy.Circle, Color.Black);
-                    inGame = false;
+                    Lost();
                 }
             }
 

@@ -10,8 +10,11 @@ public abstract class GameEngineBase
     protected string message = String.Empty;
 
     public const string GameOver = "Game over!";
-    
+    public const string YouWon = "You won!";
+
     public bool IsInGame => inGame;
+    public event Action? OnGameOver;
+    public event Action? OnWon;
 
     public GameEngineBase(IGameContext? gameContext)
     {
@@ -53,13 +56,27 @@ public abstract class GameEngineBase
         Finish();
     }
 
+    protected void Won()
+    {
+        message = YouWon;
+        inGame = false;
+        OnWon?.Invoke();
+    }
+    
+    protected void Lost()
+    {
+        message = GameOver;
+        inGame = false;
+        OnGameOver?.Invoke();
+    }
+
     private void HandleGameState(IButtonStates? buttonStates)
     {
         if (buttonStates != null)
         {
             if (buttonStates.IsBackButtonPressed())
             {
-                inGame = false;
+                Lost();
             }
             if (buttonStates.IsCenterButtonPressed())
             {

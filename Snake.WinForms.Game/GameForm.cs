@@ -9,7 +9,6 @@ public partial class GameForm : Form
     private readonly System.Windows.Forms.Timer timer;
     private readonly WinFormsGameContext context;
     private readonly SnakeGameEngine engine;
-    private bool lastInGame = true;
 
     public GameForm()
     {
@@ -21,30 +20,17 @@ public partial class GameForm : Form
 
         context = new WinFormsGameContext(this);
         engine = new SnakeGameEngine(context);
-
-        timer = new System.Windows.Forms.Timer
-        {
-            Interval = 50
-        };
-
-        timer.Tick += (_, _) => GameLoop();
-        timer.Start();
-    }
-
-    private void GameLoop()
-    {
-        context.Clear();
-        engine.GameMoment();
-        context.Update();
-        Invalidate();
-
-        if (!engine.IsInGame && lastInGame)
+        engine.OnGameOver += () =>
         {
             context.ShowOnMiddleOfScreen(GameEngineBase.GameOver, FontType.Normal, 0);
             context.PlayGameOver();
-        }
-
-        lastInGame = engine.IsInGame;
+        };
+        engine.OnWon += () =>
+        {
+            context.ShowOnMiddleOfScreen(GameEngineBase.YouWon, FontType.Normal, 0);
+            context.PlayYouWon();
+        };
+        Task.Run(() => engine.GameLoop(50));
     }
 
     protected override void OnPaint(PaintEventArgs e)

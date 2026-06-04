@@ -36,8 +36,7 @@ public class SnakeGameEngine(IGameContext? gameContext) : GameEngineBase(gameCon
                 scoreCounter.Add(nutrition * 2);
                 if (scoreCounter.Score > Constants.MaxPoints)
                 {
-                    message = "You won!";
-                    inGame = false;
+                    Won();
                 }
                 foodProducer.ProduceFood(gameContext);
                 worm.Grow(nutrition);
