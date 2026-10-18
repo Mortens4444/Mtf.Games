@@ -26,8 +26,15 @@ public abstract class GameEngineBase
 
     public abstract IButtonStates? GameMoment();
 
-    public void GameLoop(int time = 30, int endDelay = 3000)
+    public const int DefaultEndDelay = 3000;
+
+    public void GameLoop(int time = 30) => GameLoop(time, DefaultEndDelay);
+
+    public void GameLoop(int time, int endDelay)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(time);
+        ArgumentOutOfRangeException.ThrowIfNegative(endDelay);
+
         Initialize();
 
         while (inGame)
@@ -74,7 +81,7 @@ public abstract class GameEngineBase
     {
         if (buttonStates != null)
         {
-            if (buttonStates.IsBackButtonPressed())
+            if (inGame && buttonStates.IsBackButtonPressed())
             {
                 Lost();
             }

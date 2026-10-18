@@ -30,7 +30,12 @@ public class SnakeGameEngine : GameEngineBase
 
     public override IButtonStates? GameMoment()
     {
-        inGame &= worm.MoveForward(gameContext);
+        var alive = worm.MoveForward(gameContext);
+        if (inGame && !alive)
+        {
+            Lost();
+        }
+
         if (inGame)
         {
             worm.Draw(gameContext);

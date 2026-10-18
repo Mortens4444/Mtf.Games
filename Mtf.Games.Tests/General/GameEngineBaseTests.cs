@@ -154,6 +154,108 @@ public class GameEngineBaseTests
     }
 
     [Test]
+    public void GameLoop_BackButtonAfterGameEnded_DoesNotRaiseGameOverAgain()
+    {
+        var context = new FakeGameContext();
+        var lost = 0;
+        var engine = new TestEngine(context)
+        {
+            Moment = e =>
+            {
+                e.DoLost();
+                return new FakeButtonStates { Back = true };
+            }
+        };
+        engine.OnGameOver += () => lost++;
+
+        engine.GameLoop(1, 0);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(lost, Is.EqualTo(1));
+            Assert.That(context.Calls.Count(c => c == "PlayGameOver"), Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void GameLoop_BackButtonAfterWin_KeepsWonResult()
+    {
+        var context = new FakeGameContext();
+        var lost = 0;
+        var engine = new TestEngine(context)
+        {
+            Moment = e =>
+            {
+                e.DoWon();
+                return new FakeButtonStates { Back = true };
+            }
+        };
+        engine.OnGameOver += () => lost++;
+
+        engine.GameLoop(1, 0);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(lost, Is.Zero);
+            Assert.That(engine.Message, Is.EqualTo(GameEngineBase.YouWon));
+            Assert.That(context.Calls, Does.Contain("PlayYouWon"));
+        });
+    }
+
+    [TestCase(-1, 0)]
+    [TestCase(0, -1)]
+    [TestCase(-5, -5)]
+    public void GameLoop_NegativeDelay_ThrowsBeforeStarting(int time, int endDelay)
+    {
+        var context = new FakeGameContext();
+        var engine = new TestEngine(context);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(() => engine.GameLoop(time, endDelay), Throws.TypeOf<ArgumentOutOfRangeException>());
+            Assert.That(engine.Moments, Is.Zero);
+            Assert.That(context.Calls, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void GameLoop_SingleArgumentOverload_NegativeTime_Throws()
+    {
+        var engine = new TestEngine(new FakeGameContext());
+
+        Assert.That(() => engine.GameLoop(-1), Throws.TypeOf<ArgumentOutOfRangeException>().With.Property("ParamName").EqualTo("time"));
+    }
+
+    [Test]
+    public void GameLoop_SingleArgumentOverload_ForwardsToMainLoop()
+    {
+        var context = new FakeGameContext();
+        var engine = new TestEngine(context)
+        {
+            Moment = _ => throw new InvalidOperationException("stop")
+        };
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(() => engine.GameLoop(5), Throws.InvalidOperationException.With.Message.EqualTo("stop"));
+            Assert.That(engine.Moments, Is.EqualTo(1));
+            Assert.That(context.Calls, Is.EqualTo(new[] { "StartGame", "Clear" }));
+        });
+    }
+
+    [Test]
+    public void GameLoop_KeepsBinaryCompatibleSingleIntOverload()
+    {
+        var method = typeof(GameEngineBase).GetMethod(nameof(GameEngineBase.GameLoop), [typeof(int)]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(method, Is.Not.Null);
+            Assert.That(GameEngineBase.DefaultEndDelay, Is.EqualTo(3000));
+        });
+    }
+
+    [Test]
     public void GameLoop_CenterButtonWhileInGame_PausesUntilUpOrDown()
     {
         var context = new FakeGameContext();

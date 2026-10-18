@@ -86,6 +86,8 @@ public class SnakeGameEngineTests
         var context = CreateContext();
         var engine = new SnakeGameEngine(context);
         PlaceFood(engine, 80, 10);
+        var lost = 0;
+        engine.OnGameOver += () => lost++;
         var moments = 0;
 
         while (engine.IsInGame && moments < 50)
@@ -98,6 +100,49 @@ public class SnakeGameEngineTests
         {
             Assert.That(engine.IsInGame, Is.False);
             Assert.That(moments, Is.EqualTo(19));
+            Assert.That(lost, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public void GameMoment_AfterDeath_DoesNotRaiseGameOverAgain()
+    {
+        var context = CreateContext();
+        var engine = new SnakeGameEngine(context);
+        PlaceFood(engine, 80, 10);
+        var lost = 0;
+        engine.OnGameOver += () => lost++;
+        for (int i = 0; engine.IsInGame && i < 50; i++)
+        {
+            engine.GameMoment();
+        }
+
+        engine.GameMoment();
+        engine.GameMoment();
+
+        Assert.That(lost, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void GameMoment_AfterWin_DeathDoesNotRaiseGameOver()
+    {
+        var context = CreateContext();
+        var engine = new SnakeGameEngine(context);
+        var lost = 0;
+        engine.OnGameOver += () => lost++;
+        GetScoreCounter(engine).Add(Constants.MaxPoints + 1);
+        PlaceFood(engine, 32, CenterY);
+        engine.GameMoment();
+
+        for (int i = 0; i < 50; i++)
+        {
+            engine.GameMoment();
+        }
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(engine.IsInGame, Is.False);
+            Assert.That(lost, Is.Zero);
         });
     }
 
@@ -167,12 +212,15 @@ public class SnakeGameEngineTests
         var context = CreateContext();
         var engine = new SnakeGameEngine(context);
         PlaceFood(engine, 80, 10);
+        var lost = 0;
+        engine.OnGameOver += () => lost++;
 
         engine.GameLoop(1, 0);
 
         Assert.Multiple(() =>
         {
             Assert.That(engine.IsInGame, Is.False);
+            Assert.That(lost, Is.EqualTo(1));
             Assert.That(context.Calls.First(), Is.EqualTo("StartGame"));
             Assert.That(context.Calls, Does.Contain("PlayGameOver"));
             Assert.That(context.Texts, Does.Contain(GameEngineBase.GameOver));
