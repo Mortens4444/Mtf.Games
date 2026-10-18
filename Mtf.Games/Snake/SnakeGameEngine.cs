@@ -5,12 +5,18 @@ using System.Drawing;
 
 namespace Mtf.Games.Snake;
 
-public class SnakeGameEngine(IGameContext? gameContext) : GameEngineBase(gameContext)
+public class SnakeGameEngine : GameEngineBase
 {
-    private Wormy worm = new(gameContext);
     private DirectionHandler? directionHandler;
-    private FoodProducer foodProducer = new(gameContext);
     private ScoreCounter scoreCounter = new();
+
+    // Assigned by StartNewGame, which the base constructor invokes.
+    private Wormy worm = null!;
+    private FoodProducer foodProducer = null!;
+
+    public SnakeGameEngine(IGameContext? gameContext) : base(gameContext)
+    {
+    }
 
     protected override void StartNewGame()
     {

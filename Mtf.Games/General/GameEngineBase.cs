@@ -26,7 +26,7 @@ public abstract class GameEngineBase
 
     public abstract IButtonStates? GameMoment();
 
-    public void GameLoop(int time = 30)
+    public void GameLoop(int time = 30, int endDelay = 3000)
     {
         Initialize();
 
@@ -50,7 +50,7 @@ public abstract class GameEngineBase
             }
 
             gameContext.Update();
-            Thread.Sleep(inGame ? time : 3000);
+            Thread.Sleep(inGame ? time : endDelay);
         }
 
         Finish();

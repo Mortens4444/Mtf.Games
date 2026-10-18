@@ -6,15 +6,20 @@ using System.Drawing;
 
 namespace Mtf.Games.Circles;
 
-public class CirclesGameEngine(IGameContext? gameContext) : GameEngineBase(gameContext)
+public class CirclesGameEngine : GameEngineBase
 {
-    private MovingHandler? movingHandler;
-
-    private CircleEater player = new(gameContext, 4);
-    private IList<CircleEater> enemies = [];
-    private readonly Random random = new(Environment.TickCount);
-
     private const int NumberOfEnemies = 15;
+
+    private readonly Random random = new(Environment.TickCount);
+    private MovingHandler? movingHandler;
+    private IList<CircleEater> enemies = [];
+
+    // Assigned by StartNewGame, which the base constructor invokes.
+    private CircleEater player = null!;
+
+    public CirclesGameEngine(IGameContext? gameContext) : base(gameContext)
+    {
+    }
 
     protected override void StartNewGame()
     {
