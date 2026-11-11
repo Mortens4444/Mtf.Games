@@ -28,6 +28,12 @@ public abstract class GameEngineBase
 
     public const int DefaultEndDelay = 3000;
 
+    /// <summary>
+    /// When true, the center button pauses a running game and restarts a finished one.
+    /// Games that use the center button as an action button (for example fire) return false.
+    /// </summary>
+    protected virtual bool CenterButtonPauses => true;
+
     public void GameLoop(int time = 30) => GameLoop(time, DefaultEndDelay);
 
     public void GameLoop(int time, int endDelay)
@@ -85,7 +91,7 @@ public abstract class GameEngineBase
             {
                 Lost();
             }
-            if (buttonStates.IsCenterButtonPressed())
+            if (CenterButtonPauses && buttonStates.IsCenterButtonPressed())
             {
                 if (!inGame)
                 {

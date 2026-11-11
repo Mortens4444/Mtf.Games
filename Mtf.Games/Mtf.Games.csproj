@@ -37,7 +37,7 @@
     <PackageLicenseFile>.\LICENSE.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/Mortens4444/Mtf.Games.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Circles Snake Games Mortens</PackageTags>
+    <PackageTags>Circles Snake Pong Arkanoid AlienAttack Airwolf Arcade Games Mortens</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

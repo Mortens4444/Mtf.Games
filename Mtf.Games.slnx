@@ -3,4 +3,10 @@
   <Project Path="Mtf.Games.Tests/Mtf.Games.Tests.csproj" />
   <Project Path="Snake.Console.Game/Snake.Console.Game.csproj" Id="8e1c031a-bf14-4dc6-9058-d0e0406d115f" />
   <Project Path="Snake.WinForms.Game/Snake.WinForms.Game.csproj" Id="5847b6eb-12e1-40fe-9cb9-13765d6361fa" />
+  <Project Path="Mtf.Games.WinForms/Mtf.Games.WinForms.csproj" />
+  <Project Path="Circles.WinForms.Game/Circles.WinForms.Game.csproj" />
+  <Project Path="Pong.WinForms.Game/Pong.WinForms.Game.csproj" />
+  <Project Path="Arkanoid.WinForms.Game/Arkanoid.WinForms.Game.csproj" />
+  <Project Path="AlienAttack.WinForms.Game/AlienAttack.WinForms.Game.csproj" />
+  <Project Path="Airwolf.WinForms.Game/Airwolf.WinForms.Game.csproj" />
 </Solution>

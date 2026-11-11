@@ -12,6 +12,9 @@ public class WinFormsGameContext(Form form) : IGameContext
     private readonly HashSet<Keys> pressedKeys = [];
     private readonly List<(IPrimitive primitive, Color color)> drawQueue = [];
 
+    // The frame handed over to the UI thread. The game thread only replaces the reference.
+    private (IPrimitive primitive, Color color)[] frame = [];
+
     public int ScreenWidth => form.ClientSize.Width;
     public int ScreenHeight => form.ClientSize.Height;
 
@@ -30,6 +33,7 @@ public class WinFormsGameContext(Form form) : IGameContext
 
     public void Update()
     {
+        frame = [.. drawQueue];
         form.Invalidate();
     }
 
@@ -37,7 +41,7 @@ public class WinFormsGameContext(Form form) : IGameContext
     {
         g.Clear(Color.White);
 
-        foreach (var (primitive, color) in drawQueue)
+        foreach (var (primitive, color) in frame)
         {
             using var brush = new SolidBrush(color);
             using var pen = new Pen(color);
@@ -63,6 +67,21 @@ public class WinFormsGameContext(Form form) : IGameContext
                             circle.Circle.Radius * 2,
                             circle.Circle.Radius * 2);
                     }
+                    break;
+
+                case RectanglePrimitive rectangle:
+                    if (rectangle.Fill)
+                    {
+                        g.FillRectangle(brush, rectangle.Rect.X, rectangle.Rect.Y, rectangle.Rect.Width, rectangle.Rect.Height);
+                    }
+                    else
+                    {
+                        g.DrawRectangle(pen, rectangle.Rect.X, rectangle.Rect.Y, rectangle.Rect.Width - 1, rectangle.Rect.Height - 1);
+                    }
+                    break;
+
+                case LinePrimitive line:
+                    g.DrawLine(pen, line.Line.A, line.Line.B);
                     break;
 
                 case PointPrimitive point:

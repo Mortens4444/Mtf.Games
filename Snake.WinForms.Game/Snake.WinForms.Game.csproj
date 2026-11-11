@@ -9,7 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The form and the game context moved to Mtf.Games.WinForms. These files are not compiled any more and can be deleted. -->
+    <Compile Remove="GameForm.cs;GameForm.Designer.cs;WinFormsButtonStates.cs;WinFormsGameContext.cs" />
+    <EmbeddedResource Remove="GameForm.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Mtf.Games\Mtf.Games.csproj" />
+    <ProjectReference Include="..\Mtf.Games.WinForms\Mtf.Games.WinForms.csproj" />
   </ItemGroup>
 
 </Project>
