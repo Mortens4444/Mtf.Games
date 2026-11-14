@@ -1,5 +1,6 @@
 ﻿using Mtf.Games.General.Arcade;
 using Mtf.Games.Interfaces;
+using System.Drawing;
 
 namespace Mtf.Games.Arkanoid;
 
@@ -22,23 +23,86 @@ public class ArkanoidGameEngine(IGameContext? context, Random? randomSource = nu
         ["@@@@@@", "#.##.#", "######", "@.@@.@"]
     ];
 
+    // Bright colors for the bricks, one for every row. A display without colors shows them light,
+    // so the black frame and the black core of a strong brick stay visible.
+    private static readonly Color[] RowColors = [Color.Tomato, Color.Orange, Color.LimeGreen, Color.DeepSkyBlue, Color.Violet];
+
+    // Dark colors for the paddle and the ball, they have to be visible on a display without colors too.
+    private static readonly Color PaddleColor = Color.MidnightBlue;
+    private static readonly Color BallColor = Color.Crimson;
+
+    // One destroyed brick in PerkDropChance drops a perk. The effects last EffectTicks game moments.
+    private const int PerkDropChance = 5;
+    private const int MaxPerks = 3;
+    private const int MaxLives = 5;
+    private const int EffectTicks = 600;
+    private const float WidePaddleFactor = 2f;
+    private const float SlowBallFactor = 0.65f;
+
+    // Perks are picked from this list, so the extra life is the rarest one.
+    private static readonly ArkanoidPerkKind[] PerkKinds =
+    [
+        ArkanoidPerkKind.WidePaddle,
+        ArkanoidPerkKind.SlowBall,
+        ArkanoidPerkKind.StickyPaddle,
+        ArkanoidPerkKind.WidePaddle,
+        ArkanoidPerkKind.SlowBall,
+        ArkanoidPerkKind.ExtraLife
+    ];
+
     private readonly List<ArkanoidBrick> bricks = [];
+    private readonly List<ArkanoidPerk> perks = [];
 
     // Assigned by SetupLevel, which the base constructor invokes.
     private BoxSprite paddle = null!;
     private BallSprite ball = null!;
     private float ballSpeed;
+    private float paddleWidth;
+    private float stickOffset;
     private bool ballStuck;
+    private int wideTicks;
+    private int slowTicks;
+    private int stickyTicks;
 
     public int RemainingBricks => bricks.Count;
+
+    /// <summary>
+    /// True while the paddle is twice as wide.
+    /// </summary>
+    public bool IsPaddleWide => wideTicks > 0;
+
+    /// <summary>
+    /// True while the ball is slowed down.
+    /// </summary>
+    public bool IsBallSlow => slowTicks > 0;
+
+    /// <summary>
+    /// True while the ball sticks to the paddle.
+    /// </summary>
+    public bool IsPaddleSticky => stickyTicks > 0;
 
     protected override int LevelCount => Layouts.Length;
 
     protected override bool CenterButtonPauses => false;
 
+    protected override string HudText
+    {
+        get
+        {
+            var effects = (IsPaddleWide ? "W" : "") + (IsBallSlow ? "S" : "") + (IsPaddleSticky ? "G" : "");
+            return effects.Length == 0 ? base.HudText : $"{base.HudText} {effects}";
+        }
+    }
+
+    private float CurrentBallSpeed => IsBallSlow ? ballSpeed * SlowBallFactor : ballSpeed;
+
     protected override void SetupLevel()
     {
         bricks.Clear();
+        perks.Clear();
+        wideTicks = 0;
+        slowTicks = 0;
+        stickyTicks = 0;
 
         var layout = Layouts[(Level - 1) % Layouts.Length];
         var brickWidth = FieldWidth / Columns;
@@ -55,20 +119,35 @@ public class ArkanoidGameEngine(IGameContext? context, Random? randomSource = nu
                 }
 
                 var hits = cell == StrongCell ? 2 : 1;
-                bricks.Add(new ArkanoidBrick(FieldLeft + column * brickWidth, top + row * brickHeight, brickWidth, brickHeight, hits));
+                bricks.Add(new ArkanoidBrick(FieldLeft + column * brickWidth, top + row * brickHeight, brickWidth, brickHeight, hits)
+                {
+                    Color = RowColors[row % RowColors.Length]
+                });
             }
         }
 
-        var paddleWidth = FieldWidth / 5f;
+        paddleWidth = FieldWidth / 5f;
         var paddleHeight = MathF.Max(2f, Unit * 1.5f);
-        paddle = new BoxSprite(FieldLeft + (FieldWidth - paddleWidth) / 2f, FieldBottom - paddleHeight - Unit, paddleWidth, paddleHeight);
-        ball = new BallSprite(Unit);
+        paddle = new BoxSprite(FieldLeft + (FieldWidth - paddleWidth) / 2f, FieldBottom - paddleHeight - Unit, paddleWidth, paddleHeight)
+        {
+            Color = PaddleColor
+        };
+        ball = new BallSprite(Unit)
+        {
+            Color = BallColor
+        };
         ballSpeed = Unit * (1.3f + 0.2f * Level);
         StickBall();
     }
 
     protected override void OnLifeLost()
     {
+        // A lost life takes the perks away, the falling ones too.
+        perks.Clear();
+        wideTicks = 0;
+        slowTicks = 0;
+        stickyTicks = 0;
+        SetPaddleWidth(paddleWidth);
         StickBall();
     }
 
@@ -77,10 +156,12 @@ public class ArkanoidGameEngine(IGameContext? context, Random? randomSource = nu
         paddle.VelocityX = Buttons.HorizontalAxis * Unit * 2f;
         paddle.Update();
         paddle.ClampTo(FieldLeft, FieldTop, FieldRight, FieldBottom);
+        MovePerks();
+        CountDownEffects();
 
         if (ballStuck)
         {
-            ball.CenterOn(paddle.CenterX, paddle.Top - ball.Height / 2f);
+            ball.CenterOn(paddle.CenterX + stickOffset, paddle.Top - ball.Height / 2f);
             if (Buttons.WasPressed(ArcadeButton.Center) || Buttons.WasPressed(ArcadeButton.Up))
             {
                 Launch();
@@ -110,28 +191,139 @@ public class ArkanoidGameEngine(IGameContext? context, Random? randomSource = nu
             brick.Draw(gameContext);
         }
 
+        foreach (var perk in perks)
+        {
+            perk.Draw(gameContext);
+        }
+
         paddle.Draw(gameContext);
         ball.Draw(gameContext);
     }
 
-    private void StickBall()
+    private void StickBall(float offset = 0f)
     {
         ballStuck = true;
+        stickOffset = offset;
         ball.Stop();
-        ball.CenterOn(paddle.CenterX, paddle.Top - ball.Height / 2f);
+        ball.CenterOn(paddle.CenterX + stickOffset, paddle.Top - ball.Height / 2f);
     }
 
     private void Launch()
     {
         ballStuck = false;
-        ball.VelocityX = ballSpeed * (Randomizer.Next(2) == 0 ? -0.5f : 0.5f);
+
+        // A ball caught away from the middle of the paddle leaves the way it would bounce off.
+        var offset = stickOffset / (paddle.Width / 2f);
+        ball.VelocityX = MathF.Abs(offset) > 0.05f
+            ? MathF.Max(-1f, MathF.Min(1f, offset)) * CurrentBallSpeed * 0.85f
+            : CurrentBallSpeed * (Randomizer.Next(2) == 0 ? -0.5f : 0.5f);
         ball.VelocityY = -VerticalSpeedFor(ball.VelocityX);
         PlayTone(660, 30);
     }
 
     private float VerticalSpeedFor(float horizontalSpeed)
     {
-        return MathF.Sqrt(MathF.Max(0f, ballSpeed * ballSpeed - horizontalSpeed * horizontalSpeed));
+        var speed = CurrentBallSpeed;
+        return MathF.Sqrt(MathF.Max(0f, speed * speed - horizontalSpeed * horizontalSpeed));
+    }
+
+    private void MovePerks()
+    {
+        foreach (var perk in perks)
+        {
+            perk.Update();
+            if (perk.Intersects(paddle))
+            {
+                perk.Kill();
+                Collect(perk.Kind);
+            }
+            else if (perk.Top > FieldBottom)
+            {
+                perk.Kill();
+            }
+        }
+
+        perks.RemoveAll(perk => !perk.IsAlive);
+    }
+
+    private void Collect(ArkanoidPerkKind kind)
+    {
+        switch (kind)
+        {
+            case ArkanoidPerkKind.WidePaddle:
+                wideTicks = EffectTicks;
+                SetPaddleWidth(paddleWidth * WidePaddleFactor);
+                break;
+            case ArkanoidPerkKind.SlowBall:
+                // The speed of a moving ball is scaled once, when the effect starts.
+                if (!IsBallSlow)
+                {
+                    ball.VelocityX *= SlowBallFactor;
+                    ball.VelocityY *= SlowBallFactor;
+                }
+
+                slowTicks = EffectTicks;
+                break;
+            case ArkanoidPerkKind.StickyPaddle:
+                stickyTicks = EffectTicks;
+                break;
+            default:
+                if (Lives < MaxLives)
+                {
+                    AddLife();
+                }
+                else
+                {
+                    AddScore(50);
+                }
+                break;
+        }
+
+        PlayTone(1100, 40);
+    }
+
+    private void CountDownEffects()
+    {
+        if (wideTicks > 0 && --wideTicks == 0)
+        {
+            SetPaddleWidth(paddleWidth);
+        }
+
+        if (slowTicks > 0 && --slowTicks == 0)
+        {
+            ball.VelocityX /= SlowBallFactor;
+            ball.VelocityY /= SlowBallFactor;
+        }
+
+        if (stickyTicks > 0)
+        {
+            stickyTicks--;
+        }
+    }
+
+    // The paddle grows and shrinks around its middle.
+    private void SetPaddleWidth(float width)
+    {
+        var center = paddle.CenterX;
+        paddle.Width = width;
+        paddle.X = center - width / 2f;
+        paddle.ClampTo(FieldLeft, FieldTop, FieldRight, FieldBottom);
+    }
+
+    private void DropPerk(ArkanoidBrick brick)
+    {
+        if (perks.Count >= MaxPerks || Randomizer.Next(PerkDropChance) != 0)
+        {
+            return;
+        }
+
+        var kind = PerkKinds[Randomizer.Next(PerkKinds.Length)];
+        var width = Unit * 5f;
+        var height = Unit * 3f;
+        perks.Add(new ArkanoidPerk(brick.CenterX - width / 2f, brick.Top, width, height, kind)
+        {
+            VelocityY = Unit * 0.7f
+        });
     }
 
     private void BounceOffWalls()
@@ -166,7 +358,13 @@ public class ArkanoidGameEngine(IGameContext? context, Random? randomSource = nu
         offset = MathF.Max(-1f, MathF.Min(1f, offset));
 
         ball.Y = paddle.Top - ball.Height;
-        ball.VelocityX = offset * ballSpeed * 0.85f;
+        if (IsPaddleSticky)
+        {
+            StickBall(ball.CenterX - paddle.CenterX);
+            return;
+        }
+
+        ball.VelocityX = offset * CurrentBallSpeed * 0.85f;
         ball.VelocityY = -VerticalSpeedFor(ball.VelocityX);
         PlayTone(660, 30);
     }
@@ -199,6 +397,7 @@ public class ArkanoidGameEngine(IGameContext? context, Random? randomSource = nu
             if (brick.Hit())
             {
                 AddScore(10 * Level);
+                DropPerk(brick);
             }
             PlayTone(880, 20);
 

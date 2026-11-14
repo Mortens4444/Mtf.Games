@@ -9,4 +9,5 @@
   <Project Path="Arkanoid.WinForms.Game/Arkanoid.WinForms.Game.csproj" />
   <Project Path="AlienAttack.WinForms.Game/AlienAttack.WinForms.Game.csproj" />
   <Project Path="Airwolf.WinForms.Game/Airwolf.WinForms.Game.csproj" />
+  <Project Path="Airwolf.Console.Game/Airwolf.Console.Game.csproj" />
 </Solution>

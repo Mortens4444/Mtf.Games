@@ -78,9 +78,9 @@ public static class ArcadeCanvasExtensions
     }
 
     /// <summary>
-    /// Draws a line segment clipped to the screen.
+    /// Draws a line segment clipped to the screen. A host may ignore the thickness, it is one pixel when not set.
     /// </summary>
-    public static bool DrawSegment(this ICanvas canvas, float x1, float y1, float x2, float y2, Color? color = null)
+    public static bool DrawSegment(this ICanvas canvas, float x1, float y1, float x2, float y2, Color? color = null, float thickness = 0f)
     {
         ArgumentNullException.ThrowIfNull(canvas);
 
@@ -107,7 +107,8 @@ public static class ArcadeCanvasExtensions
         var b = new PointF(Snap(x1 + end * dx, maxX), Snap(y1 + end * dy, maxY));
         var line = new LinePrimitive
         {
-            Line = new LineF(a, b)
+            Line = new LineF(a, b),
+            Thickness = thickness
         };
         canvas.Draw(line, color ?? Color.Black);
         return true;

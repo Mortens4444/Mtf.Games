@@ -8,7 +8,7 @@ namespace Mtf.Games.General.Arcade;
 /// </summary>
 public sealed class ButtonTracker
 {
-    private const int ButtonCount = 6;
+    private const int ButtonCount = 7;
 
     private readonly bool[] current = new bool[ButtonCount];
     private readonly bool[] previous = new bool[ButtonCount];
@@ -34,6 +34,7 @@ public sealed class ButtonTracker
         current[(int)ArcadeButton.Right] = buttonStates.IsRightButtonPressed();
         current[(int)ArcadeButton.Center] = buttonStates.IsCenterButtonPressed();
         current[(int)ArcadeButton.Back] = buttonStates.IsBackButtonPressed();
+        current[(int)ArcadeButton.Secondary] = buttonStates is ISecondaryButtonStates secondary && secondary.IsSecondaryButtonPressed();
     }
 
     public void Reset()

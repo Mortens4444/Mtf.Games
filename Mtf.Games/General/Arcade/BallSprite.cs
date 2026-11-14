@@ -1,5 +1,6 @@
 ﻿using Mtf.Drawing.Geometry;
 using Mtf.Games.Interfaces;
+using System.Drawing;
 
 namespace Mtf.Games.General.Arcade;
 
@@ -16,10 +17,15 @@ public class BallSprite : Sprite
 
     public bool Fill { get; set; } = true;
 
+    /// <summary>
+    /// Color of the ball. Black when not set.
+    /// </summary>
+    public Color? Color { get; set; }
+
     public CircleF Circle => new(CenterX, CenterY, Radius);
 
     public override void Draw(ICanvas canvas)
     {
-        canvas.DrawDisc(CenterX, CenterY, Radius, Fill);
+        canvas.DrawDisc(CenterX, CenterY, Radius, Fill, Color);
     }
 }

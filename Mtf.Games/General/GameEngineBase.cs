@@ -8,6 +8,7 @@ public abstract class GameEngineBase
     protected IGameContext gameContext;
     protected bool inGame;
     protected string message = String.Empty;
+    private volatile bool stopRequested;
 
     public const string GameOver = "Game over!";
     public const string YouWon = "You won!";
@@ -34,6 +35,12 @@ public abstract class GameEngineBase
     /// </summary>
     protected virtual bool CenterButtonPauses => true;
 
+    /// <summary>
+    /// Asks a running <see cref="GameLoop(int, int)"/> to return after the current game moment.
+    /// Hosts call it when their window closes. It can be called from any thread.
+    /// </summary>
+    public void RequestStop() => stopRequested = true;
+
     public void GameLoop(int time = 30) => GameLoop(time, DefaultEndDelay);
 
     public void GameLoop(int time, int endDelay)
@@ -43,7 +50,7 @@ public abstract class GameEngineBase
 
         Initialize();
 
-        while (inGame)
+        while (inGame && !stopRequested)
         {
             gameContext.Clear();
 
@@ -115,6 +122,7 @@ public abstract class GameEngineBase
         gameContext.Clear();
         gameContext.ShowOnMiddleOfScreen("Paused", FontType.Big, 0);
         gameContext.ShowOnMiddleOfScreen("Press down/up key", FontType.Normal, 30);
+        gameContext.Update();
 
         IButtonStates buttonStates;
         do
@@ -122,7 +130,7 @@ public abstract class GameEngineBase
             buttonStates = gameContext.GetButtonStates();
             Thread.Sleep(100);
         }
-        while (!buttonStates.IsDownButtonPressed() && !buttonStates.IsUpButtonPressed());
+        while (!stopRequested && !buttonStates.IsDownButtonPressed() && !buttonStates.IsUpButtonPressed());
     }
 
     private void Finish()

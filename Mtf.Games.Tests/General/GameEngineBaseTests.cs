@@ -1,4 +1,4 @@
-using Mtf.Games.General;
+﻿using Mtf.Games.General;
 using Mtf.Games.Interfaces;
 using Mtf.Games.Tests.Fakes;
 
@@ -306,6 +306,85 @@ public class GameEngineBaseTests
             Assert.That(engine.Moments, Is.EqualTo(2));
             Assert.That(engine.StartCount, Is.EqualTo(2));
             Assert.That(context.Calls.Count(c => c == "PlayGameOver"), Is.EqualTo(1));
+            Assert.That(context.Calls.Last(), Is.EqualTo("Finish"));
+        });
+    }
+
+    [Test]
+    public void GameLoop_RequestStop_ReturnsAfterTheCurrentMoment()
+    {
+        var context = new FakeGameContext();
+        var engine = new TestEngine(context)
+        {
+            Moment = e =>
+            {
+                if (e.Moments == 2)
+                {
+                    e.RequestStop();
+                }
+                return null;
+            }
+        };
+
+        engine.GameLoop(1, 0);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(engine.Moments, Is.EqualTo(2));
+            Assert.That(engine.IsInGame, Is.True);
+            Assert.That(context.Calls, Does.Not.Contain("PlayGameOver"));
+            Assert.That(context.Calls.Last(), Is.EqualTo("Finish"));
+        });
+    }
+
+    [Test]
+    public void GameLoop_Pause_PresentsThePauseScreen()
+    {
+        var context = new FakeGameContext();
+        context.ButtonStateQueue.Enqueue(new FakeButtonStates { Down = true });
+        var engine = new TestEngine(context)
+        {
+            Moment = e =>
+            {
+                if (e.Moments == 1)
+                {
+                    return new FakeButtonStates { Center = true };
+                }
+                e.DoLost();
+                return null;
+            }
+        };
+
+        engine.GameLoop(1, 0);
+
+        var paused = context.Calls.IndexOf("ShowOnMiddleOfScreen");
+        var firstRead = context.Calls.IndexOf("GetButtonStates", paused);
+        var presented = context.Calls.IndexOf("Update", paused);
+        Assert.Multiple(() =>
+        {
+            Assert.That(paused, Is.GreaterThanOrEqualTo(0));
+            Assert.That(presented, Is.GreaterThan(paused));
+            Assert.That(presented, Is.LessThan(firstRead));
+        });
+    }
+
+    [Test]
+    public void GameLoop_RequestStopWhilePaused_EndsThePause()
+    {
+        var context = new FakeGameContext();
+        var engine = new TestEngine(context);
+        engine.Moment = e =>
+        {
+            e.RequestStop();
+            return new FakeButtonStates { Center = true };
+        };
+
+        engine.GameLoop(1, 0);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(engine.Moments, Is.EqualTo(1));
+            Assert.That(context.Calls.Count(c => c == "GetButtonStates"), Is.EqualTo(1));
             Assert.That(context.Calls.Last(), Is.EqualTo("Finish"));
         });
     }

@@ -25,8 +25,9 @@ One player Pong against a paddle driven by the game.
 * **Game Over:** Missing the ball three times.
 
 ### Arkanoid
-A brick breaker with three levels. Outlined bricks need one hit, filled bricks need two.
+A brick breaker with three levels. The bricks are colored by row. A brick with a black core needs two hits, the others need one. On a display without colors the bricks are outlined (one hit) or filled (two hits).
 * **Controls:** Left and right move the paddle, center or up launches the ball.
+* **Perks:** One destroyed brick in five drops a perk, catch it with the paddle. Wide paddle (gold, `W` in the HUD): the paddle is twice as wide. Slow ball (blue, `S`): the ball moves slower. Sticky paddle (purple, `G`): the ball sticks to the paddle until you launch it again. Extra life (pink, up to 5 lives). The effects last about 30 seconds at the default frame time, and a lost life takes them away.
 * **Objective:** Clear every brick on all three levels.
 * **Game Over:** Losing the ball three times.
 
@@ -37,9 +38,9 @@ A fixed shooter with three levels. The alien formation marches down the screen a
 * **Game Over:** Being hit by three bombs, or letting the aliens reach the ship.
 
 ### Airwolf
-A side scrolling helicopter game over hills, with drones in the air and turrets on the ground.
-* **Controls:** The four direction buttons fly the helicopter, center fires.
-* **Objective:** Stay alive until the end of both levels. The HUD shows the progress in percent.
+A side scrolling helicopter game over rolling hills with a colored sky, sun, parallax mountains, clouds, trees and bushes. The first level is a day, the second one a dusk. Drones fly in the air, turrets and foot soldiers wait on the ground, and a gunship boss closes every level.
+* **Controls:** The four direction buttons fly the helicopter, center (Space) fires and the secondary button (Enter) drops a bomb. A bomb falls with the speed of the helicopter, blows up on the ground or on the first enemy it touches, and destroys every enemy in its blast. Two bombs can be in the air, and a new one is ready after about a second. The gunship takes three hits from a blast. The helicopter has inertia: it accelerates, drifts after a button is released and pitches into the flight. Turrets track the helicopter with their barrel but cannot aim below a minimum elevation, so flying low is safe from them. Shots and rammed enemies explode. Soldiers walk over the hills and shoot at a helicopter above them.
+* **Objective:** Stay alive until the end of a level (the HUD shows the progress in percent), then destroy the gunship boss. It takes several hits, shows its remaining armor above itself, fires spreads of shells and is not destroyed by ramming it. Clear both levels.
 * **Game Over:** Crashing three times into the ground, an enemy or flak.
 
 ---
@@ -48,7 +49,8 @@ A side scrolling helicopter game over hills, with drones in the air and turrets 
 
 The framework relies heavily on dependency injection and specific interfaces to keep the game logic completely decoupled from the rendering and physical input layers:
 
-* **`GameEngineBase`**: The core abstract class managing the primary `GameLoop()`, pause states, frame pacing, and game-over/victory sequences.
+* **`GameEngineBase`**: The core abstract class managing the primary `GameLoop()`, pause states, frame pacing, and game-over/victory sequences. A host calls `RequestStop()` (from any thread) to end a running loop, for example when its window closes.
+* **`MenuGameEngine`**: A main menu around any game (New Game, Credits, Exit, and Continue while a game is running). Pass it to a host instead of the game engine: `new MenuGameEngine(context, "TITLE", game => new AirwolfGameEngine(game), creditLines)`. Up and down choose, the center button selects, back leaves the game or a page, and a finished game shows its result before the menu returns. The Airwolf sample uses it.
 * **`IGameContext`**: An aggregate interface combining `ICanvas`, `IInputContext`, `IAudioContext`, and `IApplicationContext`. It provides everything a game instance needs to interact with the host system.
 * **`ICanvas`**: Handles the physical dimensions of the screen and the rendering of shapes (like `CirclePrimitive` and `TextPrimitive`).
 * **`IInputContext` / `IButtonStates`**: Abstracts keyboard or controller inputs into simple, readable boolean checks (e.g., `IsUpButtonPressed()`).
@@ -80,4 +82,4 @@ To run or extend this project, you need a .NET environment that implements the r
 2. Instantiate one of the game engines (`CirclesGameEngine`, `SnakeGameEngine`, `PongGameEngine`, `ArkanoidGameEngine`, `AlienAttackGameEngine` or `AirwolfGameEngine`), passing your custom context into the constructor.
 3. Call `.GameLoop()` to start playing.
 
-Every game has its own WinForms sample project (`Snake.WinForms.Game`, `Circles.WinForms.Game`, `Pong.WinForms.Game`, `Arkanoid.WinForms.Game`, `AlienAttack.WinForms.Game`, `Airwolf.WinForms.Game`). They share the form and the game context from the `Mtf.Games.WinForms` project. Arrow keys are the direction buttons, space is the center button and escape is the back button.
+Every game has its own WinForms sample project (`Snake.WinForms.Game`, `Circles.WinForms.Game`, `Pong.WinForms.Game`, `Arkanoid.WinForms.Game`, `AlienAttack.WinForms.Game`, `Airwolf.WinForms.Game`). They share the form and the game context from the `Mtf.Games.WinForms` project. Arrow keys are the direction buttons, space is the center button and escape is the back button. Enter is the secondary button (`ISecondaryButtonStates`, optional): Airwolf drops its bombs with it, and it selects in the menu. The context implements `ITextMeasureContext`, so the menu can center its texts, and `ISoundEffectContext` with short beeps, and the form stops the game loop when the window is closed. Airwolf rebuilds its terrain when the window is resized or maximized. `GameForm.FullScreen` makes the window borderless over the whole screen (the Airwolf sample starts that way), F11 or Alt+Enter switches it, and the text grows with the window height.

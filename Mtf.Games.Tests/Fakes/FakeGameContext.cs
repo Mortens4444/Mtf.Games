@@ -7,12 +7,13 @@ namespace Mtf.Games.Tests.Fakes;
 
 public sealed class FakeGameContext : IGameContext
 {
-    public int ScreenWidth { get; init; } = 100;
-    public int ScreenHeight { get; init; } = 100;
+    public int ScreenWidth { get; set; } = 100;
+    public int ScreenHeight { get; set; } = 100;
     public int HorizontalCenter => ScreenWidth / 2;
     public int VerticalCenter => ScreenHeight / 2;
 
     public List<IPrimitive> Drawn { get; } = [];
+    public List<(IPrimitive Primitive, Color Color)> DrawnColors { get; } = [];
     public List<string> Texts { get; } = [];
     public List<string> Calls { get; } = [];
     public Queue<IButtonStates> ButtonStateQueue { get; } = new();
@@ -22,7 +23,11 @@ public sealed class FakeGameContext : IGameContext
 
     public void Clear() => Calls.Add(nameof(Clear));
     public void Update() => Calls.Add(nameof(Update));
-    public void Draw(IPrimitive primitive, Color color) => Drawn.Add(primitive);
+    public void Draw(IPrimitive primitive, Color color)
+    {
+        Drawn.Add(primitive);
+        DrawnColors.Add((primitive, color));
+    }
 
     public void ShowOnMiddleOfScreen(string text, FontType fontType, int v2)
     {

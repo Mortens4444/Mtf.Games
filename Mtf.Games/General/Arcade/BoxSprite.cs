@@ -1,4 +1,5 @@
 ﻿using Mtf.Games.Interfaces;
+using System.Drawing;
 
 namespace Mtf.Games.General.Arcade;
 
@@ -13,8 +14,13 @@ public class BoxSprite : Sprite
 
     public bool Fill { get; set; } = true;
 
+    /// <summary>
+    /// Color of the box. Black when not set.
+    /// </summary>
+    public Color? Color { get; set; }
+
     public override void Draw(ICanvas canvas)
     {
-        canvas.DrawBox(X, Y, Width, Height, Fill);
+        canvas.DrawBox(X, Y, Width, Height, Fill, Color);
     }
 }

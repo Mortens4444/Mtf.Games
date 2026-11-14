@@ -7,5 +7,10 @@ public enum ArcadeButton
     Left,
     Right,
     Center,
-    Back
+    Back,
+
+    /// <summary>
+    /// An extra action button, when the host has one (see <see cref="Interfaces.ISecondaryButtonStates"/>).
+    /// </summary>
+    Secondary
 }

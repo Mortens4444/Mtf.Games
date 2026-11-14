@@ -128,6 +128,17 @@ public abstract class ArcadeGameEngineBase(IGameContext? context, Random? random
     }
 
     /// <summary>
+    /// Gives an extra life. It does nothing when the game is over.
+    /// </summary>
+    protected void AddLife()
+    {
+        if (inGame)
+        {
+            Lives++;
+        }
+    }
+
+    /// <summary>
     /// Takes a life. The game is lost when no life remains.
     /// </summary>
     protected void LoseLife()
